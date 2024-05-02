@@ -1,6 +1,43 @@
 # ticketing
 
 ```mermaid
+graph LR
+    client[Client] -->|Creates Post| posts[Posts Service]
+    client -->|Creates Comment| comments[Comments Service]
+    posts -->|Post Created Event| eventbus[Event Bus]
+    comments -->|Comment Created Event| eventbus
+    eventbus -->|Distribute Events| query[Query Service]
+    eventbus -->|Distribute Events| moderation[Moderation Service]
+    eventbus -->|Distribute Events| comments
+    moderation -->|Comment Moderated Event| eventbus
+    query -->|Serves Aggregated Data| client
+```
+
+```mermaid
+sequenceDiagram
+  participant Client as Client
+  participant Server as Express Server
+  participant Middleware as Validation Middleware
+  participant User as User Model
+  participant DB as MongoDB
+  participant JWT as JWT Library
+  Client->>Server: POST /api/users/signup
+  Server->>Middleware: Pass request to Validation Middleware
+  Middleware-->>Server: Validation result
+  Server->>User: findOne({ email })
+  User->>DB: findOne({ email })
+  DB-->>User: Existing user (or null)
+  User-->>Server: Existing user (or null)
+  Server->>User: build({ email, password })
+  User->>DB: save new user
+  DB-->>User: Saved user
+  User-->>Server: Saved user
+  Server->>JWT: sign({ id, email }, 'process.env.JWT_KEY!')
+  JWT-->>Server: JWT
+  Server-->>Client: 201 Created, user
+```
+
+```mermaid
 graph TB;
     Client[Client App] -->|Requests| AG[API Gateway]
     AG -->|Routing| MS1[Service A]
