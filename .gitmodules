@@ -4,3 +4,6 @@
 [submodule "client"]
 	path = client
 	url = git@github.com:gonzalomelov/ticketing-client.git
+[submodule "common"]
+	path = common
+	url = git@github.com:gonzalomelov/ticketing-common.git
